@@ -1,6 +1,6 @@
 {
   "name": "gemini-live-sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A comprehensive SDK for Gemini Live API with React and server support",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
