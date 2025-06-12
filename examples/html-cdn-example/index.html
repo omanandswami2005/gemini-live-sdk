@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemini Live SDK - HTML CDN Example</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .status-connected {
+        background-color: #10b981;
+        animation: pulse 2s infinite;
+      }
+      .status-connecting {
+        background-color: #f59e0b;
+        animation: pulse 1s infinite;
+      }
+      .status-error {
+        background-color: #ef4444;
+      }
+      .status-disconnected {
+        background-color: #6b7280;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .video-overlay {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .overlay-btn {
+        padding: 8px;
+        border-radius: 50%;
+        backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .overlay-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .overlay-btn.active {
+        background: rgba(239, 68, 68, 0.8);
+      }
+
+      .overlay-btn.active:hover {
+        background: rgba(220, 38, 38, 0.8);
+      }
+
+      .overlay-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .audio-bar {
+        animation: audioWave 1s ease-in-out infinite;
+      }
+
+      @keyframes audioWave {
+        0%,
+        100% {
+          height: 4px;
+        }
+        50% {
+          height: 20px;
+        }
+      }
+
+      .audio-bar:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .audio-bar:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .audio-bar:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .audio-bar:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+      .audio-bar:nth-child(6) {
+        animation-delay: 0.5s;
+      }
+      .audio-bar:nth-child(7) {
+        animation-delay: 0.6s;
+      }
+      .audio-bar:nth-child(8) {
+        animation-delay: 0.7s;
+      }
+      .audio-bar:nth-child(9) {
+        animation-delay: 0.8s;
+      }
+      .audio-bar:nth-child(10) {
+        animation-delay: 0.9s;
+      }
+      .audio-bar:nth-child(11) {
+        animation-delay: 1s;
+      }
+      .audio-bar:nth-child(12) {
+        animation-delay: 1.1s;
+      }
+      .audio-bar:nth-child(13) {
+        animation-delay: 1.2s;
+      }
+      .audio-bar:nth-child(14) {
+        animation-delay: 1.3s;
+      }
+      .audio-bar:nth-child(15) {
+        animation-delay: 1.4s;
+      }
+      .audio-bar:nth-child(16) {
+        animation-delay: 1.5s;
+      }
+      .audio-bar:nth-child(17) {
+        animation-delay: 1.6s;
+      }
+      .audio-bar:nth-child(18) {
+        animation-delay: 1.7s;
+      }
+      .audio-bar:nth-child(19) {
+        animation-delay: 1.8s;
+      }
+      .audio-bar:nth-child(20) {
+        animation-delay: 1.9s;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="flex items-center justify-center mb-4">
+          <i data-lucide="sparkles" class="w-12 h-12 text-blue-600"></i>
+        </div>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">
+          Gemini Live SDK
+          <span class="block text-2xl text-blue-600 font-normal mt-2">
+            HTML CDN Example
+          </span>
+        </h1>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Experience real-time AI conversation with voice, video, and text
+          capabilities using the Gemini Live SDK.
+        </p>
+      </div>
+
+      <!-- Connection Status -->
+      <div
+        class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-6"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span
+              id="connectionIndicator"
+              class="status-indicator status-disconnected"
+            ></span>
+            <div>
+              <h3 id="connectionStatus" class="font-semibold text-lg">
+                Disconnected
+              </h3>
+              <p id="connectionDescription" class="text-sm text-gray-600">
+                Not connected to AI service
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button
+              id="connectBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              aria-label="Connect to AI service"
+            >
+              Connect
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Voice Chat Panel -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+              <i data-lucide="mic" class="w-5 h-5 mr-2 text-blue-600"></i>
+              Voice Chat
+            </h3>
+            <div
+              id="recordingStatus"
+              class="hidden flex items-center space-x-2 text-sm"
+            >
+              <span class="status-indicator bg-red-500 animate-pulse"></span>
+              <span class="text-red-600 font-medium">Recording</span>
+            </div>
+          </div>
+
+          <!-- Audio Visualizer -->
+          <div
+            id="audioVisualizer"
+            class="hidden mb-6 nostro-bg-gray-900 rounded-lg p-4"
+          >
+            <div class="flex items-center justify-center space-x-1 h-16">
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class&="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+              <div
+                class="audio-bar w-1 bg-gradient-to-t from-blue-600 to-blue-400 rounded-full h-1"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Transcription Display -->
+          <div
+            id="transcriptionDisplay"
+            class="hidden mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+          >
+            <p class="text-sm text-blue-800">
+              <strong>Transcription:</strong>
+              <span id="transcriptionText"></span>
+            </p>
+          </div>
+
+          <!-- Voice Controls -->
+          <div class="flex items-center justify-center space-x-4 mb-4">
+            <button
+              id="recordBtn"
+              class="relative p-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Toggle recording"
+              aria-pressed="false"
+            >
+              <i data-lucide="mic" class="w-6 h-6"></i>
+            </button>
+            <button
+              id="muteBtn"
+              class="hidden p-3 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              aria-label="Toggle mute"
+              aria-pressed="false"
+            >
+              <i data-lucide="mic" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <div class="text-center">
+            <p id="voiceStatus" class="text-gray-600 text-sm">
+              Connect to start voice chat
+            </p>
+          </div>
+        </div>
+
+        <!-- Video Panel -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+              <i data-lucide="video" class="w-5 h-5 mr-2 text-blue-600"></i>
+              Video Stream
+            </h3>
+            <div
+              id="videoStatus"
+              class="hidden flex items-center space-x-2 text-sm"
+            >
+              <span class="status-indicator bg-green-500 animate-pulse"></span>
+              <span class="text-green-600 font-medium">Camera Active</span>
+            </div>
+          </div>
+
+          <!-- Video Element -->
+          <div
+            class="relative bg-gray-900 rounded-lg overflow-hidden mb-6 aspect-video"
+          >
+            <video
+              id="videoElement"
+              autoplay
+              muted
+              playsinline
+              class="w-full h-full object-cover hidden"
+            ></video>
+
+            <div
+              id="videoPlaceholder"
+              class="absolute inset-0 flex items-center justify-center"
+            >
+              <div class="text-center text-gray-400">
+                <i
+                  data-lucide="video-off"
+                  class="w-12 h-12 mx-auto mb-3 opacity-50"
+                ></i>
+                <p class="text-sm">No video stream</p>
+                <p class="text-xs mt-1">Enable camera or screen sharing</p>
+              </div>
+            </div>
+
+            <!-- Video Controls Overlay -->
+            <div id="videoOverlay" class="hidden video-overlay">
+              <button
+                id="stopCameraBtn"
+                class="overlay-btn"
+                title="Stop Camera"
+                disabled
+                aria-label="Stop camera"
+              >
+                <i data-lucide="square" class="w-4 h-4"></i>
+              </button>
+              <button
+                id="stopScreenBtn"
+                class="overlay-btn"
+                title="Stop Screen Share"
+                disabled
+                aria-label="Stop screen sharing"
+              >
+                <i data-lucide="square" class="w-4 h-4"></i>
+              </button>
+              <button
+                id="toggleCaptureBtn"
+                class="overlay-btn"
+                title="Toggle AI Vision"
+                aria-label="Toggle AI vision"
+                aria-pressed="false"
+              >
+                <i data-lucide="play" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Video Controls -->
+          <div class="flex items-center justify-center space-x-4 mb-4">
+            <button
+              id="webcamBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Toggle webcam"
+              aria-pressed="false"
+            >
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              <span>Start Camera</span>
+            </button>
+            <button
+              id="screenBtn"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+              title="Screen sharing not yet supported"
+              aria-label="Screen sharing (not supported)"
+            >
+              <i data-lucide="monitor" class="w-4 h-4"></i>
+              <span>Share Screen</span>
+            </button>
+          </div>
+
+          <div class="text-center">
+            <p id="videoStatusText" class="text-gray-600 text-sm">
+              Connect to enable video features
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Chat Panel -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+        <div class="flex items-center mb-6">
+          <i
+            data-lucide="message-square"
+            class="w-5 h-5 mr-2 text-blue-600"
+          ></i>
+          <h3 class="text-xl font-semibold text-gray-900">Text Chat</h3>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button
+            class="quick-action bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+            data-message="Hello! How can you help me today?"
+            aria-label="Send hello message"
+          >
+            👋 Say Hello
+          </button>
+          <button
+            class="quick-action bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+            data-message="Can you explain quantum computing in simple terms?"
+            aria-label="Ask about science"
+          >
+            🧠 Ask About Science
+          </button>
+          <button
+            class="quick-action bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+            data-message="Write a short poem about artificial intelligence"
+            aria-label="Request creative writing"
+          >
+            ✍️ Creative Writing
+          </button>
+        </div>
+
+        <!-- Message Input -->
+        <div class="flex space-x-3 mb-4">
+          <textarea
+            id="messageInput"
+            placeholder="Type your message here..."
+            rows="3"
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-gray-100"
+            aria-label="Type your message"
+          ></textarea>
+          <button
+            id="sendBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 rounded-lg transition-colors flex items-center justify-center disabled:bg-gray-300 disabled:cursor-not-allowed"
+            aria-label="Send message"
+          >
+            <i data-lucide="send" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center text-sm text-gray-500">
+          <span id="charCount">0 characters</span>
+          <span id="connectionWarning" class="text-yellow-600 hidden"
+            >⚠️ Not connected</span
+          >
+        </div>
+      </div>
+      <div>
+        <label>User Input Volume:</label>
+        <progress id="volume-meter-user" max="100" value="0"></progress>
+      </div>
+      <div>
+        <label>Incoming Voice Volume:</label>
+        <progress id="volume-meter-stream" max="100" value="0"></progress>
+      </div>
+
+      <!-- Activity Log -->
+      <div
+        class="mt-6 bg-white rounded-xl shadow-lg border border-gray-200 p-6"
+      >
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Activity Log</h3>
+        <div id="activityLog" class="space-y-2 max-h-40 overflow-y-auto">
+          <p class="text-gray-500 text-sm">No activity yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load Gemini Live SDK from CDN (placeholder URL) -->
+    <script src="https://cdn.jsdelivr.net/npm/gemini-live-sdk/dist/umd/index.umd.js"></script>
+    <script>
+      // Initialize Lucide icons once on DOM load
+      document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+      });
+
+      // Global state
+      let client = null;
+      let isConnected = false;
+      let isRecording = false;
+      let isMuted = false;
+      let isWebcamActive = false;
+      let isScreenSharing = false;
+      let isCapturing = false;
+
+      // DOM elements
+      const connectBtn = document.getElementById("connectBtn");
+      const connectionStatus = document.getElementById("connectionStatus");
+      const connectionDescription = document.getElementById(
+        "connectionDescription"
+      );
+      const connectionIndicator = document.getElementById(
+        "connectionIndicator"
+      );
+      const recordBtn = document.getElementById("recordBtn");
+      const muteBtn = document.getElementById("muteBtn");
+      const voiceStatus = document.getElementById("voiceStatus");
+      const recordingStatus = document.getElementById("recordingStatus");
+      const audioVisualizer = document.getElementById("audioVisualizer");
+      const transcriptionDisplay = document.getElementById(
+        "transcriptionDisplay"
+      );
+      const transcriptionText = document.getElementById("transcriptionText");
+      const webcamBtn = document.getElementById("webcamBtn");
+      const screenBtn = document.getElementById("screenBtn");
+      const videoElement = document.getElementById("videoElement");
+      const videoPlaceholder = document.getElementById("videoPlaceholder");
+      const videoOverlay = document.getElementById("videoOverlay");
+      const videoStatus = document.getElementById("videoStatus");
+      const videoStatusText = document.getElementById("videoStatusText");
+      const stopCameraBtn = document.getElementById("stopCameraBtn");
+      const stopScreenBtn = document.getElementById("stopScreenBtn");
+      const toggleCaptureBtn = document.getElementById("toggleCaptureBtn");
+      const messageInput = document.getElementById("messageInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const charCount = document.getElementById("charCount");
+      const connectionWarning = document.getElementById("connectionWarning");
+      const activityLog = document.getElementById("activityLog");
+
+      // Initialize client
+      function initializeClient() {
+        const config = {
+          endpoint: "ws://localhost:8080",
+          sampleRate: 24000,
+          debug: true,
+        };
+
+        client = new window.GeminiLiveSDK.GeminiLiveClient(config);
+
+        // Setup event listeners
+        client.on("connectionStateChange", (state) => {
+          console.log(state);
+          updateConnectionState(state);
+        });
+
+        client.on("recordingStarted", () => {
+          isRecording = true;
+          updateRecordingUI();
+          try {
+            client.createUserVolumeMeter(
+              document.getElementById("volume-meter-user")
+            );
+            client.createAIVolumeMeter(
+              document.getElementById("volume-meter-stream")
+            );
+          } catch (error) {
+            showError(`Volume Meter Setup Failed: ${error.message}`);
+          }
+          sendMessage("Hello from the client!");
+          logActivity("Started voice recording");
+        });
+
+        client.on("recordingStopped", () => {
+          isRecording = false;
+          isMuted = false;
+          updateRecordingUI();
+          logActivity("Stopped voice recording");
+        });
+
+        client.on("muteToggled", (muted) => {
+          isMuted = muted;
+          updateRecordingUI();
+          logActivity(muted ? "Muted microphone" : "Unmuted microphone");
+        });
+
+        client.onCustomEvent("serverResponse", (data) => {
+          console.log("Received serverResponse:", data.response);
+        });
+
+        // client.on("aiTranscription", (data) => {
+        //   console.log("AI Transcription:", data.text);
+        // });
+
+        // client.on("userTranscription", (data) => {
+        //   console.log("User Transcription:", data.text);
+        // });
+        client.onCustomEvent("customTranscription", (data) => {
+          console.log(
+            `Custom Transcription (${data.type}): ${data.text} at ${data.timestamp}`
+          );
+          // Send acknowledgment back to server
+          client.sendCustomEvent("transcriptionAck", {
+            type: data.type,
+            text: data.text,
+            receivedAt: new Date().toISOString(),
+          });
+        });
+        client.on("toolCall", (toolCall) => {
+          logActivity(`Tool call: ${toolCall.name}`);
+        });
+
+        client.on("error", (error) => {
+          logActivity(`Error: ${error.message}`);
+          updateConnectionState({ status: "error", error: error.message });
+        });
+
+        // Set video element for video features
+        // console.log(videoElement);
+        client.setVideoElement(videoElement);
+      }
+
+      // Connection management
+      function toggleConnection() {
+        if (isConnected) {
+          disconnect();
+        } else {
+          connect();
+        }
+      }
+
+      function connect() {
+        updateConnectionState({ status: "connecting" });
+        initializeClient();
+        connectBtn.textContent = "Disconnect";
+        connectBtn.setAttribute("aria-label", "Disconnect from AI service");
+        logActivity("Connecting to Gemini Live Server");
+      }
+
+      function disconnect() {
+        if (client) {
+          client.destroy();
+          client = null;
+        }
+        isConnected = false;
+        isRecording = false;
+        isMuted = false;
+        isWebcamActive = false;
+        isScreenSharing = false;
+        isCapturing = false;
+
+        updateConnectionState({ status: "disconnected" });
+        connectBtn.textContent = "Connect";
+        connectBtn.setAttribute("aria-label", "Connect to AI service");
+        updateUI();
+        logActivity("Disconnected from server");
+      }
+
+      function updateConnectionState(state) {
+        isConnected = state.status === "connected";
+
+        switch (state.status) {
+          case "connected":
+            connectionStatus.textContent = "Connected";
+            connectionDescription.textContent = "Ready for AI conversation";
+            connectionIndicator.className = "status-indicator status-connected";
+            break;
+          case "connecting":
+            connectionStatus.textContent = "Connecting...";
+            connectionDescription.textContent =
+              "Establishing connection to AI service";
+            connectionIndicator.className =
+              "status-indicator status-connecting";
+            break;
+          case "error":
+            connectionStatus.textContent = "Connection Error";
+            connectionDescription.textContent =
+              state.error || "Failed to connect to AI service";
+            connectionIndicator.className = "status-indicator status-error";
+            break;
+          default:
+            connectionStatus.textContent = "Disconnected";
+            connectionDescription.textContent = "Not connected to AI service";
+            connectionIndicator.className =
+              "status-indicator status-disconnected";
+        }
+        updateUI();
+      }
+
+      // Audio recording
+      async function startRecording() {
+        if (!client || !isConnected) {
+          logActivity("Cannot record: Not connected to AI service");
+          return;
+        }
+
+        try {
+          await client.startRecording();
+          recordBtn.setAttribute("aria-pressed", "true");
+        } catch (error) {
+          logActivity(`Recording error: ${error.message}`);
+          connectionDescription.textContent = `Recording error: ${error.message}`;
+          connectionIndicator.className = "status-indicator status-error";
+        }
+      }
+
+      function stopRecording() {
+        if (!client) return;
+        client.stopRecording();
+        recordBtn.setAttribute("aria-pressed", "false");
+      }
+
+      function toggleMute() {
+        if (!client) return;
+        client.toggleMute();
+        muteBtn.setAttribute("aria-pressed", isMuted ? "true" : "false");
+      }
+
+      function updateRecordingUI() {
+        if (isRecording) {
+          recordBtn.innerHTML = '<i data-lucide="square" class="w-6 h-6"></i>';
+          recordBtn.className = recordBtn.className.replace(
+            "bg-blue-600 hover:bg-blue-700",
+            "bg-red-600 hover:bg-red-700 scale-110"
+          );
+          recordingStatus.classList.remove("hidden");
+          audioVisualizer.classList.remove("hidden");
+          muteBtn.classList.remove("hidden");
+          voiceStatus.textContent = isMuted
+            ? "Microphone muted"
+            : "Listening...";
+
+          if (isMuted) {
+            muteBtn.innerHTML = '<i data-lucide="mic-off" class="w-5 h-5"></i>';
+            muteBtn.className = muteBtn.className.replace(
+              "bg-gray-100 text-gray-600",
+              "bg-red-100 text-red-600"
+            );
+          } else {
+            muteBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+            muteBtn.className = muteBtn.className.replace(
+              "bg-red-100 text-red-600",
+              "bg-gray-100 text-gray-600"
+            );
+          }
+        } else {
+          recordBtn.innerHTML = '<i data-lucide="mic" class="w-6 h-6"></i>';
+          recordBtn.className = recordBtn.className.replace(
+            "bg-red-600 hover:bg-red-700 scale-110",
+            "bg-blue-600 hover:bg-blue-700"
+          );
+          recordingStatus.classList.add("hidden");
+          audioVisualizer.classList.add("hidden");
+          muteBtn.classList.add("hidden");
+          voiceStatus.textContent = isConnected
+            ? "Click the microphone to start recording"
+            : "Connect to start voice chat";
+        }
+      }
+
+      // Video handling
+      async function startWebcam() {
+        if (!client || !isConnected) {
+          logActivity("Cannot start webcam: Not connected to AI service");
+          return;
+        }
+
+        try {
+          const active = await client.toggleWebcam();
+          client.sendCustomEvent("clientAction", {
+            action: "webcam " + (active ? "started" : "stopped"),
+          });
+          isWebcamActive = active;
+          if (active) {
+            isScreenSharing = false;
+          }
+          updateVideoUI();
+          webcamBtn.setAttribute(
+            "aria-pressed",
+            isWebcamActive ? "true" : "false"
+          );
+          logActivity(active ? "Started webcam" : "Stopped webcam");
+        } catch (error) {
+          logActivity(`Webcam error: ${error.message}`);
+          connectionDescription.textContent = `Webcam error: ${error.message}`;
+          connectionIndicator.className = "status-indicator status-error";
+        }
+      }
+
+      async function startScreenShare() {
+        logActivity("Screen sharing not yet implemented in SDK");
+        const isScreenSharing = await client.toggleScreenShare();
+        client.sendCustomEvent("clientAction", {
+          action: "screenShare " + (isScreenSharing ? "started" : "stopped"),
+        });
+      }
+
+      function stopAllVideo() {
+        if (!client) return;
+
+        if (isWebcamActive) {
+          client.toggleWebcam();
+        }
+        isWebcamActive = false;
+        isScreenSharing = false;
+        isCapturing = false;
+        updateVideoUI();
+        logActivity("Stopped video stream");
+      }
+
+      function toggleFrameCapture() {
+        if (!client || !isConnected) {
+          logActivity("Cannot toggle AI vision: Not connected to AI service");
+          return;
+        }
+
+        isCapturing = !isCapturing;
+        toggleCaptureBtn.setAttribute(
+          "aria-pressed",
+          isCapturing ? "true" : "false"
+        );
+        updateVideoUI();
+        logActivity(
+          isCapturing
+            ? "Started AI vision capture"
+            : "Stopped AI vision capture"
+        );
+      }
+
+      function updateVideoUI() {
+        const hasVideo = isWebcamActive || isScreenSharing;
+
+        stopCameraBtn.disabled = !isWebcamActive;
+        stopScreenBtn.disabled = !isScreenSharing;
+        toggleCaptureBtn.disabled = !hasVideo;
+
+        if (hasVideo) {
+          videoElement.classList.remove("hidden");
+          videoPlaceholder.classList.add("hidden");
+          videoOverlay.classList.remove("hidden");
+          videoStatus.classList.remove("hidden");
+
+          videoStatus.innerHTML = `
+            <span class="status-indicator bg-green-500 animate-pulse"></span>
+            <span class="text-green-600 font-medium">${
+              isScreenSharing ? "Screen Sharing" : "Camera Active"
+            }</span>
+            ${
+              isCapturing
+                ? '<span class="text-blue-600 font-medium ml-2">• AI Vision Active</span>'
+                : ""
+            }
+          `;
+        } else {
+          videoElement.classList.add("hidden");
+          videoPlaceholder.classList.remove("hidden");
+          videoOverlay.classList.add("hidden");
+          videoStatus.classList.add("hidden");
+          videoStatus.innerHTML = "";
+        }
+
+        // Update button states
+        if (isWebcamActive) {
+          webcamBtn.innerHTML =
+            '<i data-lucide="square" class="w-4 h-4"></i><span>Stop Camera</span>';
+          webcamBtn.className = webcamBtn.className.replace(
+            "bg-blue-600 hover:bg-blue-700",
+            "bg-green-600 hover:bg-green-700"
+          );
+        } else {
+          webcamBtn.innerHTML =
+            '<i data-lucide="camera" class="w-4 h-4"></i><span>Start Camera</span>';
+          webcamBtn.className = webcamBtn.className.replace(
+            "bg-green-600 hover:bg-green-700",
+            "bg-blue-600 hover:bg-blue-700"
+          );
+        }
+
+        if (isScreenSharing) {
+          screenBtn.innerHTML =
+            '<i data-lucide="square" class="w-4 h-4"></i><span>Stop Sharing</span>';
+          screenBtn.className = screenBtn.className.replace(
+            "bg-gray-200 hover:bg-gray-300 text-gray-900",
+            "bg-green-600 hover:bg-green-700 text-white"
+          );
+        } else {
+          screenBtn.innerHTML =
+            '<i data-lucide="monitor" class="w-4 h-4"></i><span>Share Screen</span>';
+          screenBtn.className = screenBtn.className.replace(
+            "bg-green-600 hover:bg-green-700 text-white",
+            "bg-gray-200 hover:bg-gray-300 text-gray-900"
+          );
+        }
+
+        // Update capture button
+        toggleCaptureBtn.innerHTML = isCapturing
+          ? '<i data-lucide="pause" class="w-4 h-4"></i>'
+          : '<i data-lucide="play" class="w-4 h-4"></i>';
+        toggleCaptureBtn.title = isCapturing
+          ? "Stop AI Vision"
+          : "Start AI Vision";
+
+        videoStatusText.textContent = !isConnected
+          ? "Connect to enable video features"
+          : hasVideo
+          ? `Video stream active - AI can see your ${
+              isScreenSharing ? "screen" : "camera"
+            }`
+          : "Enable camera or screen sharing for visual context";
+      }
+
+      // Text messaging
+      function sendMessage(text) {
+        if (!client || !isConnected || !text.trim()) {
+          if (!isConnected) {
+            logActivity("Cannot send message: Not connected to AI service");
+          }
+          return;
+        }
+
+        client.sendTextMessage(text.trim());
+        logActivity(`Sent: ${text.trim()}`);
+        messageInput.value = "";
+        updateCharCount();
+      }
+
+      function updateCharCount() {
+        charCount.textContent = `${messageInput.value.length} characters`;
+      }
+
+      function updateUI() {
+        const disabled = !isConnected;
+
+        recordBtn.disabled = disabled;
+        webcamBtn.disabled = disabled;
+        screenBtn.disabled = disabled;
+        sendBtn.disabled = disabled;
+        messageInput.disabled = disabled;
+
+        document.querySelectorAll(".quick-action").forEach((btn) => {
+          btn.disabled = disabled;
+        });
+
+        connectionWarning.classList.toggle("hidden", isConnected);
+
+        updateRecordingUI();
+        updateVideoUI();
+      }
+
+      function logActivity(message) {
+        const entry = document.createElement("div");
+        entry.className = "text-sm text-gray-600 p-2 bg-gray-50 rounded";
+        entry.innerHTML = `<span class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</span> ${message}`;
+
+        if (
+          activityLog.children.length === 1 &&
+          activityLog.children[0].textContent === "No activity yet"
+        ) {
+          activityLog.innerHTML = "";
+        }
+
+        activityLog.insertBefore(entry, activityLog.firstChild);
+
+        // Keep only last 10 entries
+        while (activityLog.children.length > 10) {
+          activityLog.removeChild(activityLog.lastChild);
+        }
+      }
+
+      // Event listeners
+      connectBtn.addEventListener("click", toggleConnection);
+
+      recordBtn.addEventListener("click", () => {
+        if (isRecording) {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      });
+
+      muteBtn.addEventListener("click", toggleMute);
+
+      webcamBtn.addEventListener("click", startWebcam);
+      screenBtn.addEventListener("click", startScreenShare);
+
+      sendBtn.addEventListener("click", () => {
+        sendMessage(messageInput.value);
+      });
+
+      messageInput.addEventListener("input", updateCharCount);
+      messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage(messageInput.value);
+        }
+      });
+
+      document.querySelectorAll(".quick-action").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const message = btn.getAttribute("data-message");
+          messageInput.value = message;
+          updateCharCount();
+          sendMessage(message);
+        });
+      });
+
+      // Video overlay controls
+      stopCameraBtn.addEventListener("click", () => {
+        if (isWebcamActive) stopAllVideo();
+      });
+
+      stopScreenBtn.addEventListener("click", () => {
+        if (isScreenSharing) stopAllVideo();
+      });
+
+      toggleCaptureBtn.addEventListener("click", toggleFrameCapture);
+
+      // Initialize UI
+      updateUI();
+      updateCharCount();
+    </script>
+  </body>
+</html>
