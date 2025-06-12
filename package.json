@@ -2,59 +2,10 @@
   "name": "gemini-live-sdk",
   "version": "1.0.2",
   "description": "A comprehensive SDK for Gemini Live API with React and server support",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.es.js",
   "type": "module",
   "license": "MIT",
-  "scripts": {
-    "dev": "vite",
-    "build": "npm run clean && npm run build:lib",
-    "build:lib": "vite build --mode lib && vite build --mode lib-server && vite build --mode lib-react && vite build --mode lib-umd",
-    "build:server": "npm run clean && vite build --mode lib-server",
-    "build:main": "npm run clean && vite build --mode lib",
-    "build:umd": "npm run clean && vite build --mode lib-umd",
-    "build:react": "npm run clean && vite build --mode lib-react",
-    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
-    "copy-worklets": "node scripts/copy-worklets.js",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "test": "vitest",
-    "prepublishOnly": "npm run build"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./server": {
-      "import": "./dist/server/index.es.js",
-      "require": "./dist/server/index.cjs.js",
-      "types": "./dist/server/index.d.ts"
-    },
-    "./react": {
-      "import": "./dist/react/index.es.js",
-      "require": "./dist/react/index.cjs.js",
-      "types": "./dist/react/index.d.ts"
-    },
-    "./umd": {
-      "import": "./dist/umd/index.umd.js",
-      "require": "./dist/umd/index.umd.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "server": ["dist/server/index.d.ts"],
-      "react": ["dist/react/index.d.ts"],
-      "umd": ["dist/index.d.ts"]
-    }
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "repository": "https://github.com/omanandswami2005/gemini-live-sdk",
+  "author": "omanand swami",
   "keywords": [
     "gemini",
     "ai",
@@ -65,6 +16,49 @@
     "sdk",
     "video"
   ],
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js",
+      "default": "./dist/index.es.js"
+    },
+    "./server": {
+      "import": "./dist/server/index.es.js",
+      "require": "./dist/server/index.cjs.js",
+      "default": "./dist/server/index.es.js"
+    },
+    "./react": {
+      "import": "./dist/react/index.es.js",
+      "require": "./dist/react/index.cjs.js",
+      "default": "./dist/react/index.es.js"
+    },
+    "./umd": {
+      "import": "./dist/umd/index.umd.js",
+      "require": "./dist/umd/index.umd.js",
+      "default": "./dist/umd/index.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run clean && npm run build:lib",
+    "build:lib": "vite build --mode lib && vite build --mode lib-server && vite build --mode lib-react && vite build --mode lib-umd",
+    "build:server": "vite build --mode lib-server",
+    "build:main": "vite build --mode lib",
+    "build:react": "vite build --mode lib-react",
+    "build:umd": "vite build --mode lib-umd",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
     "eventemitter3": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
