@@ -1,6 +1,6 @@
 {
   "name": "gemini-live-sdk",
-  "version": "1.0.2",
+  "version": "1.1.2",
   "description": "A comprehensive SDK for Gemini Live API with React and server support",
   "type": "module",
   "license": "MIT",
