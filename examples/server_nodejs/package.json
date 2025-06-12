@@ -4,13 +4,13 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "dependencies": {
-    "gemini-live-sdk": "^1.0.2"
+    "gemini-live-sdk": "^1.1.2"
   }
 }

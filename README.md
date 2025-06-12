@@ -1,4 +1,3 @@
-
 # Gemini Live SDK
 
 [![npm version](https://badge.fury.io/js/npm.svg)](https://badge.fury.io/js/gemini-live-sdk)
@@ -83,7 +82,7 @@ const server = new GeminiLiveServer({
   events: {
     aiAudioTranscriptionReceived: (socket, data) => {
       // console.log(`AI Transcription for socket ${socket.id}: ${data.text}`);
-    
+  
     },
     userAudioTranscriptionReceived: (socket, data) => {
       // console.log(`User Transcription for socket ${socket.id}: ${data.text}`);
@@ -204,18 +203,18 @@ function VoiceChat() {
   return (
     <div>
       <div>Status: {connectionState.status}</div>
-    
+  
       <button 
         onClick={isRecording ? stopRecording : startRecording}
         disabled={connectionState.status !== 'connected'}
       >
         {isRecording ? 'Stop Recording' : 'Start Recording'}
       </button>
-    
+  
       <button onClick={() => toggleWebcam()}>
         Toggle Camera
       </button>
-    
+  
       <button onClick={() => sendTextMessage('Hello!')}>
         Send Message
       </button>
@@ -485,39 +484,12 @@ const {
 
 #### GeminiLiveProvider
 
-Context provider for the SDK:
+Context provider for the SDK
 
 ```jsx
 <GeminiLiveProvider config={config}>
   <YourApp />
 </GeminiLiveProvider>
-```
-
-#### VoiceChat
-
-Pre-built voice chat component:
-
-```jsx
-<VoiceChat
-  showVideoControls={true}
-  showTextInput={true}
-  onTranscription={(text) => console.log(text)}
-  onToolCall={(call) => console.log(call)}
-  className="custom-class"
-/>
-```
-
-#### AudioVisualizer
-
-Audio level visualization component:
-
-```jsx
-<AudioVisualizer
-  volumeLevel={75}
-  color="#3b82f6"
-  backgroundColor="#e5e7eb"
-  className="custom-class"
-/>
 ```
 
 ## 🔧 Advanced Usage
@@ -529,7 +501,10 @@ Audio level visualization component:
 const server = new GeminiLiveServer({
   googleApiKey: 'your-key',
   googleSetup: {
-    tools: [{
+    tools: [
+{googleSearch:{}},
+{codeexecution:{}},
+ {
       functionDeclarations: [{
         name: 'search_database',
         description: 'Search the company database',
